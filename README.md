@@ -1,0 +1,258 @@
+# Spring Boot CI/CD Pipeline with Jenkins
+
+## Project Overview
+
+This project is a **Spring Boot REST API** for managing professors and specialities. It also includes a complete CI/CD setup using **Jenkins, Maven, SonarQube, OWASP Dependency Check, Docker, Trivy, and Docker Compose**.
+
+This repository is useful for demonstrating backend development, CI/CD automation, containerization, code quality checks, dependency scanning, image vulnerability scanning, and staging deployment.
+
+## Features
+
+- Create, update, delete, and retrieve professors
+- Create, update, delete, and retrieve specialities
+- Filter professors by speciality
+- Filter professors by hiring date range
+- MySQL database integration using Spring Data JPA
+- Request validation using Jakarta Validation
+- Swagger/OpenAPI documentation
+- Spring Boot Actuator health endpoint
+- Dockerized application runtime
+- Docker Compose setup for application and MySQL
+- Jenkins pipeline for build, test, scan, Docker image creation, and deployment
+- SonarQube code quality analysis
+- OWASP Dependency Check for dependency vulnerability scanning
+- Trivy scan for Docker image vulnerabilities
+
+## Technology Stack
+
+| Category | Tools |
+|---|---|
+| Backend | Java 17, Spring Boot, Spring Web, Spring Data JPA |
+| Database | MySQL, H2 for tests |
+| Build | Maven |
+| API Docs | Swagger / OpenAPI |
+| CI/CD | Jenkins |
+| Code Quality | SonarQube, JaCoCo |
+| Security Scanning | OWASP Dependency Check, Trivy |
+| Containers | Docker, Docker Compose |
+
+## Project Structure
+
+```text
+.
+├── src/main/java/ma/projet/gestionprofesseurs
+│   ├── controllers
+│   ├── dao
+│   ├── entities
+│   ├── exceptions
+│   ├── repository
+│   └── services
+├── src/main/resources/application.properties
+├── src/test/resources/application-test.properties
+├── Dockerfile
+├── Dockerfile.final
+├── docker-compose.yml
+├── Jenkinsfile
+├── pom.xml
+└── README.md
+```
+
+## API Endpoints
+
+### Professor APIs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/professeur` | Get all professors |
+| GET | `/api/professeur/{id}` | Get professor by ID |
+| POST | `/api/professeur` | Create professor |
+| PUT | `/api/professeur/{id}` | Update professor |
+| DELETE | `/api/professeur/{id}` | Delete professor |
+| GET | `/api/professeur/specialite/{id}` | Get professors by speciality |
+| GET | `/api/professeur/filterByDate?dateDebut=2024-01-01&dateFin=2024-12-31` | Filter professors by hiring date |
+
+### Speciality APIs
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/specialite` | Get all specialities |
+| GET | `/api/specialite/{id}` | Get speciality by ID |
+| POST | `/api/specialite` | Create speciality |
+| PUT | `/api/specialite/{id}` | Update speciality |
+| DELETE | `/api/specialite/{id}` | Delete speciality |
+
+## Sample Requests
+
+### Create a Speciality
+
+```bash
+curl -X POST http://localhost:8080/api/specialite \
+  -H "Content-Type: application/json" \
+  -d '{
+    "code": "CS",
+    "libelle": "Computer Science"
+  }'
+```
+
+### Create a Professor
+
+```bash
+curl -X POST http://localhost:8080/api/professeur \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nom": "Smith",
+    "prenom": "John",
+    "telephone": "+1-555-1000",
+    "email": "john.smith@example.com",
+    "dateEmbauche": "2024-01-15",
+    "specialite": {
+      "id": 1
+    }
+  }'
+```
+
+## Run Locally
+
+### Prerequisites
+
+- Java 17
+- Maven 3.x
+- MySQL 8.x
+
+### Configure Database
+
+The application uses environment variables with default values.
+
+```properties
+SERVER_PORT=8080
+DB_HOST=localhost
+DB_PORT=3307
+DB_NAME=springboot3
+DB_USERNAME=root
+DB_PASSWORD=root
+```
+
+### Start the Application
+
+```bash
+mvn clean package
+java -jar target/professor-management-api.jar
+```
+
+## Run with Docker Compose
+
+Docker Compose starts both MySQL and the Spring Boot application.
+
+```bash
+docker compose up -d --build
+```
+
+Stop the containers:
+
+```bash
+docker compose down
+```
+
+Remove containers and database volume:
+
+```bash
+docker compose down -v
+```
+
+## Useful URLs
+
+| Service | URL |
+|---|---|
+| Application | `http://localhost:8080` |
+| Swagger UI | `http://localhost:8080/swagger-ui` |
+| OpenAPI Docs | `http://localhost:8080/api-docs` |
+| Health Check | `http://localhost:8080/actuator/health` |
+| MySQL | `localhost:3307` |
+
+## Jenkins CI/CD Pipeline
+
+The Jenkins pipeline contains these stages:
+
+1. **Checkout** - Pulls source code from GitHub
+2. **OWASP Dependency Check** - Scans Maven dependencies for vulnerabilities
+3. **Test and Package** - Runs tests and builds the Spring Boot JAR
+4. **SonarQube Analysis** - Runs static code quality analysis
+5. **Docker Build** - Builds and tags the Docker image
+6. **Trivy Image Scan** - Scans the Docker image for vulnerabilities
+7. **Docker Push** - Pushes the image to Docker Hub
+8. **Deploy to Staging** - Deploys the app using Docker Compose
+
+## Jenkins Setup Notes
+
+Before running the pipeline, update these values in `Jenkinsfile`:
+
+```groovy
+DOCKER_NAMESPACE = 'replace-with-your-dockerhub-username'
+```
+
+Create these Jenkins credentials:
+
+| Credential ID | Type | Purpose |
+|---|---|---|
+| `dockerhub-credentials` | Username with password/token | Docker Hub login |
+| `sonarqube-token` | Secret text | SonarQube authentication token |
+
+Configure these Jenkins tools:
+
+| Tool Name | Purpose |
+|---|---|
+| `jdk17` | Java 17 |
+| `maven3` | Maven build |
+| `docker` | Docker CLI |
+| `db-check` | OWASP Dependency Check installation |
+
+Configure SonarQube server in Jenkins with this name:
+
+```text
+SonarQube
+```
+
+## Docker Commands
+
+Build the image using the multi-stage Dockerfile:
+
+```bash
+docker build -t professor-management-api:latest .
+```
+
+Run the application container only:
+
+```bash
+docker run -p 8080:8080 \
+  -e DB_HOST=host.docker.internal \
+  -e DB_PORT=3307 \
+  -e DB_NAME=springboot3 \
+  -e DB_USERNAME=root \
+  -e DB_PASSWORD=root \
+  professor-management-api:latest
+```
+
+## Security Improvements Added
+
+- Removed hardcoded SonarQube token from Jenkinsfile
+- Removed hardcoded GitHub repository checkout URL and changed checkout to `checkout scm`
+- Removed hardcoded personal DockerHub username and replaced it with a configurable namespace
+- Added environment-variable based database configuration
+- Added validation for API request bodies
+- Added `404 NOT_FOUND` responses when records are missing
+- Added Docker Compose file for local/staging deployment
+- Added Trivy image scan stage
+- Added JaCoCo test coverage reporting
+
+## Future Improvements
+
+- Add JWT authentication and role-based authorization
+- Add controller and service layer unit tests
+- Add Kubernetes manifests or Helm chart
+- Add Prometheus and Grafana monitoring
+- Add centralized logging using ELK/OpenSearch
+- Add GitHub Actions pipeline as an alternative to Jenkins
+
+## Resume / LinkedIn Project Summary
+
+Built a Spring Boot REST API for Professor and Speciality Management and implemented a Jenkins-based CI/CD pipeline to automate code checkout, Maven build, testing, OWASP dependency scanning, SonarQube code analysis, Docker image creation, Trivy image scanning, DockerHub publishing, and staging deployment using Docker Compose.

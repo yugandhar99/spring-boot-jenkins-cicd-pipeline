@@ -1,0 +1,7 @@
+# Runtime image used by Jenkins after Maven creates target/professor-management-api.jar
+FROM eclipse-temurin:17-jre-alpine
+
+WORKDIR /app
+COPY target/professor-management-api.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

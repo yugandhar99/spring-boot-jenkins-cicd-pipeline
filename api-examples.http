@@ -1,0 +1,38 @@
+### Health check
+GET http://localhost:8080/actuator/health
+
+### Create speciality
+POST http://localhost:8080/api/specialite
+Content-Type: application/json
+
+{
+  "code": "CS",
+  "libelle": "Computer Science"
+}
+
+### Get all specialities
+GET http://localhost:8080/api/specialite
+
+### Create professor
+POST http://localhost:8080/api/professeur
+Content-Type: application/json
+
+{
+  "nom": "Smith",
+  "prenom": "John",
+  "telephone": "+1-555-1000",
+  "email": "john.smith@example.com",
+  "dateEmbauche": "2024-01-15",
+  "specialite": {
+    "id": 1
+  }
+}
+
+### Get all professors
+GET http://localhost:8080/api/professeur
+
+### Get professors by speciality
+GET http://localhost:8080/api/professeur/specialite/1
+
+### Filter professors by hiring date
+GET http://localhost:8080/api/professeur/filterByDate?dateDebut=2024-01-01&dateFin=2024-12-31
