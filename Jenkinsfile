@@ -5,7 +5,7 @@ pipeline {
         jdk 'jdk17'
         maven 'maven3'
     }
-
+ 
     environment {
         APP_NAME = 'professor-management-api'
         DOCKER_NAMESPACE = 'replace-with-your-dockerhub-username'
