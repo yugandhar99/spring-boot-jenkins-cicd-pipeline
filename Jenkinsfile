@@ -6,7 +6,7 @@ pipeline {
         maven 'maven3'
     }
 
-    environment {
+    environment { 
         APP_NAME = 'professor-management-api'
         DOCKER_NAMESPACE = 'replace-with-your-dockerhub-username'
         DOCKER_IMAGE = "${DOCKER_NAMESPACE}/${APP_NAME}"
