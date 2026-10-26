@@ -1,4 +1,4 @@
-# Spring Boot CI/CD Pipeline with Jenkin s
+# Spring Boot CI/CD Pipeline with Jenkins
 
 ## Project Overview
 
